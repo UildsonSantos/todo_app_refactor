@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
 
 import 'package:todo_provider_refactor/models/todo_model.dart';
 import 'package:todo_provider_refactor/providers/providers.dart';
@@ -30,48 +29,43 @@ class FilteredTodosState extends Equatable {
   }
 }
 
-class FilteredTodos with ChangeNotifier {
-  late FilteredTodosState _state;
-  final List<Todo> initialFilteredTodos;
+class FilteredTodos {
+  final TodoFilter todoFilter;
+  final TodoSearch todoSearch;
+  final TodoList todoList;
 
   FilteredTodos({
-    required this.initialFilteredTodos,
-  }) {
-    _state = FilteredTodosState(filteredTodos: initialFilteredTodos);
-  }
-  FilteredTodosState get state => _state;
+    required this.todoFilter,
+    required this.todoSearch,
+    required this.todoList,
+  });
 
-  void update(
-    TodoFilter todoFilter,
-    TodoSearch todoSearch,
-    TodoList todoList,
-  ) {
+  FilteredTodosState get state {
     // ignore: no_leading_underscores_for_local_identifiers
-    List<Todo> _filteredTodo;
+    List<Todo> _filteredTodos;
 
     switch (todoFilter.state.filter) {
       case Filter.active:
-        _filteredTodo =
+        _filteredTodos =
             todoList.state.todos.where((Todo todo) => !todo.completed).toList();
         break;
       case Filter.completed:
-        _filteredTodo =
+        _filteredTodos =
             todoList.state.todos.where((Todo todo) => todo.completed).toList();
       case Filter.all:
       default:
-        _filteredTodo = todoList.state.todos;
+        _filteredTodos = todoList.state.todos;
         break;
     }
 
     if (todoSearch.state.searchTerm.isNotEmpty) {
-      _filteredTodo = _filteredTodo
+      _filteredTodos = _filteredTodos
           .where((Todo todo) => todo.desc
               .toLowerCase()
               .contains(todoSearch.state.searchTerm.toLowerCase()))
           .toList();
     }
 
-    _state = _state.copyWith(filteredTodos: _filteredTodo);
-    notifyListeners();
+    return FilteredTodosState(filteredTodos: _filteredTodos);
   }
 }
